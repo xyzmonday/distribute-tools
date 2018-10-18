@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yff.distribute.mapper.DistributeLockMapper">
+    <resultMap id="methodLockMap" type="com.yff.distribute.entity.DistributeLock">
+        <id property="id" column="id"/>
+        <result property="lockName" column="lock_name"/>
+        <result property="lockDesc" column="lock_desc"/>
+        <result property="lockStatus" column="lock_status"/>
+        <result property="expireTime" column="expire_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="findOne" resultType="com.yff.distribute.entity.DistributeLock" parameterType="map">
+        select * from distribute_lock where lock_name=#{lockName} and lock_desc=#{lockDesc}
+    </select>
+
+
+    <insert id="insertRecord" parameterType="com.yff.distribute.entity.DistributeLock">
+        insert into distribute_lock(`lock_name`,`lock_desc`,`expire_time`,`create_time`,`count`)
+        values (#{lockName},#{lockDesc},#{expireTime},#{createTime},#{count})
+    </insert>
+
+    <delete id="deleteRecord" parameterType="map">
+        delete from distribute_lock where lock_name = #{lockName};
+    </delete>
+
+    <update id="acquireReentryLock" parameterType="com.yff.distribute.entity.DistributeLock">
+        update distribute_lock set `expire_time`=#{expireTime},`count`=`count` + 1
+        where lock_name = #{lockName}
+    </update>
+
+    <update id="releaseReentryLock">
+        update distribute_lock set `count`=`count` - 1
+        where lock_name = #{lockName} and `count` > 0 and lock_desc=#{lockDesc}
+    </update>
+
+    <select id="getLockForUpdate" resultType="com.yff.distribute.entity.DistributeLock" parameterType="map">
+         select * from distribute_lock where lock_name=#{lockName} for update;
+    </select>
+</mapper>

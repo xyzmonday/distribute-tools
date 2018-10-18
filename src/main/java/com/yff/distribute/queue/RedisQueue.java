@@ -20,12 +20,11 @@ public class RedisQueue {
     @Autowired
     private RedisService redisService;
 
-
     @Resource(name = "messageQueueThreadPool")
     private ExecutorService executorService;
 
-    public void push(Message message) {
-        redisService.lRightPush();
+    public void push(String topic, Message message) {
+        redisService.lRightPush(topic, message, 0);
     }
 
 
